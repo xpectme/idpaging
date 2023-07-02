@@ -1,0 +1,34 @@
+{
+  "name": "@xplive/idbpaging",
+  "version": "1.0.0",
+  "description": "No-bullshit indexedDB wrapper functions with promises, iterators and shortcuts.",
+  "types": "dest/idbpaging.d.ts",
+  "module": "dest/idbpaging.js",
+  "browser": "dest/idbpaging.js",
+  "main": "dest/idbpaging.js",
+  "type": "module",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xpectme/idbpaging"
+  },
+  "scripts": {
+    "ts-types": " tsc --emitDeclarationOnly",
+    "replaceDts": "find dest -type f -name \"*.d.ts\" -exec sh -c 'sed \"s/\\.ts/\\.d.ts/g\" \"$0\" > \"$0.tmp\" && mv \"$0.tmp\" \"$0\"' {} \\;",
+    "bundleDts": "echo \"$(grep -o '\".*\"' dest/types/mod.d.ts | sed 's/\"//g' | xargs -I{} cat dest/types/{})\" > dest/idbpaging.d.ts",
+    "unimportDts": "echo \"$(grep -vE '^import\\s.*;' dest/idbpaging.d.ts)\" > dest/idbpaging.d.ts",
+    "dts": "npm run ts-types && npm run replaceDts && npm run bundleDts && npm run unimportDts && rimraf dest/types",
+    "build": "rimraf dest && node ./esbuild.js && npm run dts"
+  },
+  "keywords": [],
+  "author": "Mario Stöcklein <mstoecklein@xp.live>",
+  "license": "MIT",
+  "devDependencies": {
+    "esbuild": "^0.18.11",
+    "rimraf": "^5.0.1",
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "idbx": "^2.0.0"
+  }
+}

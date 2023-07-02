@@ -1,0 +1,64 @@
+{
+  "version": "2",
+  "remote": {
+    "https://cdn.skypack.dev/-/indexeddbshim@v9.0.0-QVaW8rBIOGlJegwkWTsK/dist=es2020,mode=imports/unoptimized/dist/indexeddbshim-noninvasive.js": "036e9191db93ef296b84a8a59192d4851f231e3b76a638543491cf81fe08b666",
+    "https://cdn.skypack.dev/-/regenerator-runtime@v0.13.9-4Dxus9nU31cBsHxnWq2H/dist=es2020,mode=imports/optimized/regenerator-runtime.js": "9d5c28ca64c45a9e606d5f3b35aec61568ed451495968171c8cc3ef1923cb7fe",
+    "https://cdn.skypack.dev/pin/indexeddbshim@v9.0.0-QVaW8rBIOGlJegwkWTsK/mode=imports/unoptimized/dist/indexeddbshim-noninvasive.js": "978a698ccf50ce19735b1da6cad00277cc8fc790610df183c61c2f9cc1df9c9b",
+    "https://cdn.skypack.dev/pin/regenerator-runtime@v0.13.9-4Dxus9nU31cBsHxnWq2H/mode=imports/optimized/regenerator-runtime.js": "091dd6c5266025b80081cdd5bbadd9f6e03cad950c8a16c7454b58d77b422253",
+    "https://deno.land/std@0.136.0/_util/assert.ts": "e94f2eb37cebd7f199952e242c77654e43333c1ac4c5c700e929ea3aa5489f74",
+    "https://deno.land/std@0.136.0/_util/os.ts": "49b92edea1e82ba295ec946de8ffd956ed123e2948d9bd1d3e901b04e4307617",
+    "https://deno.land/std@0.136.0/path/_constants.ts": "df1db3ffa6dd6d1252cc9617e5d72165cd2483df90e93833e13580687b6083c3",
+    "https://deno.land/std@0.136.0/path/_interface.ts": "ee3b431a336b80cf445441109d089b70d87d5e248f4f90ff906820889ecf8d09",
+    "https://deno.land/std@0.136.0/path/_util.ts": "c1e9686d0164e29f7d880b2158971d805b6e0efc3110d0b3e24e4b8af2190d2b",
+    "https://deno.land/std@0.136.0/path/common.ts": "bee563630abd2d97f99d83c96c2fa0cca7cee103e8cb4e7699ec4d5db7bd2633",
+    "https://deno.land/std@0.136.0/path/glob.ts": "cb5255638de1048973c3e69e420c77dc04f75755524cb3b2e160fe9277d939ee",
+    "https://deno.land/std@0.136.0/path/mod.ts": "4275129bb766f0e475ecc5246aa35689eeade419d72a48355203f31802640be7",
+    "https://deno.land/std@0.136.0/path/posix.ts": "293cdaec3ecccec0a9cc2b534302dfe308adb6f10861fa183275d6695faace44",
+    "https://deno.land/std@0.136.0/path/separator.ts": "fe1816cb765a8068afb3e8f13ad272351c85cbc739af56dacfc7d93d710fe0f9",
+    "https://deno.land/std@0.136.0/path/win32.ts": "31811536855e19ba37a999cd8d1b62078235548d67902ece4aa6b814596dd757",
+    "https://deno.land/std@0.192.0/fmt/colors.ts": "d67e3cd9f472535241a8e410d33423980bec45047e343577554d3356e1f0ef4e",
+    "https://deno.land/std@0.192.0/testing/_diff.ts": "1a3c044aedf77647d6cac86b798c6417603361b66b54c53331b312caeb447aea",
+    "https://deno.land/std@0.192.0/testing/_format.ts": "a69126e8a469009adf4cf2a50af889aca364c349797e63174884a52ff75cf4c7",
+    "https://deno.land/std@0.192.0/testing/asserts.ts": "e16d98b4d73ffc4ed498d717307a12500ae4f2cbe668f1a215632d19fcffc22f",
+    "https://deno.land/std@0.192.0/testing/mock.ts": "220ed9b8151cb2cac141043d4cfea7c47673fab5d18d1c1f0943297c8afb5d13",
+    "https://deno.land/x/indexeddb@1.3.5/lib/indexeddb.ts": "6d8eeec0c4074ed2e3ed5ae3c99e3b66703f772c791279d052680fe3b334de2d",
+    "https://deno.land/x/indexeddb@1.3.5/lib/indexeddb_global.ts": "7bec428dcf95b36a61b8acec5b5c943fb33a86815bff57458ada59e1642dfbe3",
+    "https://deno.land/x/indexeddb@1.3.5/lib/shim.ts": "8b98a9395134220ac9dfe7314c3e27f37feffec0cab37dbf557f06f118b6eaad",
+    "https://deno.land/x/indexeddb@1.3.5/polyfill_memory.ts": "83911d846564fe689356bd08054ccb994405b82d3167807f2129a7bb558f0498",
+    "https://deno.land/x/sqlite@v3.3.0/build/sqlite.d.ts": "b52e6b5ea2e0517750be2ea1eae8da0edd5056c1f285247aa1c0153f4ef504ec",
+    "https://deno.land/x/sqlite@v3.3.0/build/sqlite.js": "0b74712a5db206aa399f9833c40fd08eb24dfaff5dee77749e4bcadb333ec676",
+    "https://deno.land/x/sqlite@v3.3.0/build/vfs.js": "baff72655c0916c906327fe6703c6a47daa1346e55c2eaa2629bcd879a673c8d",
+    "https://deno.land/x/sqlite@v3.3.0/mod.ts": "eb55ff3e103826ee735fa1a8ec2db6e96c8fec826faf198239c66a0fe635c4b6",
+    "https://deno.land/x/sqlite@v3.3.0/src/constants.ts": "b967237b460fafa03ca03aeddb33953bed41c7cbdc309a934e2329a5c84079ac",
+    "https://deno.land/x/sqlite@v3.3.0/src/db.ts": "59b9c4fbe733da0e512dcd6b1f1f6a5ac8b165b565505670e9b81a73803dd36a",
+    "https://deno.land/x/sqlite@v3.3.0/src/error.ts": "abf9df169951faf8c21a68d99ef9efd257c788c19784f27dd147507fbdfe5fe7",
+    "https://deno.land/x/sqlite@v3.3.0/src/query.ts": "df4d3d6b23d52b36243dd47c07ed6ed7cd23f7834a0f6a2f2c6dbffba63d4c28",
+    "https://deno.land/x/sqlite@v3.3.0/src/wasm.ts": "e79d0baa6e42423257fb3c7cc98091c54399254867e0f34a09b5bdef37bd9487",
+    "https://deno.land/x/websql@1.3.2/deps.ts": "2bda07c0ee0eae5f23b5dde415c983c59fb945256f5a9026402eb9118945c025",
+    "https://deno.land/x/websql@1.3.2/mod.ts": "e7a44b9f376761e5592facd30ed27acae47633275a32eed57cd64f16a461222f",
+    "https://deno.land/x/websql@1.3.2/src/Database.ts": "ed5f8ae33165d2dd9c3ea1be0b427377628f9437bfe49bfabc32efb3908dc1d5",
+    "https://deno.land/x/websql@1.3.2/src/SQLResultSet.ts": "fcd83582439c0032794fa26bbbe9e47790467fa5ef1cba1c8a9fddb334f23bf1",
+    "https://deno.land/x/websql@1.3.2/src/SQLResultSetRowList.ts": "d13bda459cc73bc7e4d596a0411f1e4647d1204a8fddfd42a51720a20d4bf562",
+    "https://deno.land/x/websql@1.3.2/src/SQLTransaction.ts": "bda17665d54793976957af94a300834e5f07ee546d67e919f14da2a7f77fc797",
+    "https://deno.land/x/websql@1.3.2/src/SQLiteDBCache.ts": "0c5a67598e39e54c317b40fff3ffc9945e5a9ed0b0c91b5d8a2b379d59c4f4a4",
+    "https://esm.sh/idbx@v2.0.0": "559994e907814256c7ff70c85c31578b9631a0a2213ec46c854d5654781363e8",
+    "https://esm.sh/v127/idbx@2.0.0/deno/idbx.mjs": "4876a06576c9fedee056f5f9999842d7397a60609806c156cd8e7e952fc1c4ac",
+    "https://esm.sh/v127/idbx@2.0.0/dest/idbx.d.ts": "0ec31f6a9b85b13ee3943f98add63b6a8b06d5c182c5fb0334d54badb0dc54b2",
+    "https://gist.githubusercontent.com/mstoecklein/6f0787c663101f78367586d675dd2088/raw/10a09385b0b7f04cc93c2be79f716dc72a1e7b91/serviceworker.d.ts": "7a88acfc3b1df6abc6b3ef59f7f397f7ef80bba649daca8920b944d0c0aa9abf"
+  },
+  "npm": {
+    "specifiers": {
+      "idbx": "idbx@2.0.0"
+    },
+    "packages": {
+      "idbx@1.1.0": {
+        "integrity": "sha512-O/GZzkClE9XmmDkontg0u+sfzOPSsWYrwterRBZrIXquH8+/4bcpYzBcB1/ckHEDAQudH3elUduQJ6/jxOLH2g==",
+        "dependencies": {}
+      },
+      "idbx@2.0.0": {
+        "integrity": "sha512-snCyjz5w+j4LvXYxfe/ktD5tltF0ULBgyGCkxNNpQYpBI3tCz3Nz/xdHuEzKepKN3RRNQv2xZaCO6MKs2tQU5g==",
+        "dependencies": {}
+      }
+    }
+  }
+}
