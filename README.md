@@ -45,17 +45,17 @@ The following tools were used in this project:
 
 Deno:
 ```ts
-import * as idbx from "https://deno.land/x/idbpaging/mod.ts";
+import {IDBPaging} from "https://deno.land/x/idbpaging/mod.ts";
 ```
 
 NodeJS/Deno (same thing):
 ```ts
-import * as idbx from "npm:idbpaging";
+import {IDBPaging} from "npm:idbpaging";
 ```
 
 Browser:
 ```js
-import * as idbx from "https://esm.sh/idbpaging";
+import {IDBPaging} from "https://esm.sh/idbpaging";
 ```
 
 ## Usage ##
