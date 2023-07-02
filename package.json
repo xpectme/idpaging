@@ -1,7 +1,7 @@
 {
   "name": "@xplive/idbpaging",
   "version": "1.0.0",
-  "description": "No-bullshit indexedDB wrapper functions with promises, iterators and shortcuts.",
+  "description": "Pagination based on the indexeddb module idbx",
   "types": "dest/idbpaging.d.ts",
   "module": "dest/idbpaging.js",
   "browser": "dest/idbpaging.js",

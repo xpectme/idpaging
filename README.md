@@ -33,7 +33,7 @@
 
 ## About ##
 
-Simple Pagination component for IndexedDB.
+Pagination based on the indexeddb module idbx.
 
 ## Technologies ##
 
