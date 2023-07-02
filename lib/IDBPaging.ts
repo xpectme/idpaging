@@ -5,13 +5,15 @@ export interface IDBPagingCalculatePageNumberOptions {
   circularPaging?: boolean;
 }
 
+const PAGE_NUMBER = Symbol("pageNumber");
+
 export class IDBPaging<T> {
   db: IDBDatabase;
   storeName: string;
   pageSize: number;
-  #pageNumber: number | null = null;
+  [PAGE_NUMBER]: number | null = null;
   get pageNumber() {
-    return this.#pageNumber === null ? 1 : this.#pageNumber;
+    return this[PAGE_NUMBER] === null ? 1 : this[PAGE_NUMBER];
   }
   totalPages: number;
   list: T[];
@@ -51,23 +53,23 @@ export class IDBPaging<T> {
       ? false
       : options.circularPaging;
 
-    this.#pageNumber = parseInt(pageNumber.toString(), 10) ?? this.pageNumber;
+    this[PAGE_NUMBER] = parseInt(pageNumber.toString(), 10) ?? this.pageNumber;
     if (!noCheck || circularPaging) {
       const lastPageNumber = await this.calculateLastPageNumber();
       if (this.pageNumber < 1) {
         if (circularPaging) {
           const flipPages = Math.abs(this.pageNumber) % lastPageNumber;
-          this.#pageNumber = flipPages >= 0 ? lastPageNumber - flipPages : 1;
+          this[PAGE_NUMBER] = flipPages >= 0 ? lastPageNumber - flipPages : 1;
         } else {
-          this.#pageNumber = 1;
+          this[PAGE_NUMBER] = 1;
         }
       } else {
         if (this.pageNumber > lastPageNumber) {
           if (circularPaging) {
             const flipPages = this.pageNumber % lastPageNumber;
-            this.#pageNumber = flipPages > 0 ? flipPages : lastPageNumber;
+            this[PAGE_NUMBER] = flipPages > 0 ? flipPages : lastPageNumber;
           } else {
-            this.#pageNumber = lastPageNumber;
+            this[PAGE_NUMBER] = lastPageNumber;
           }
         }
       }

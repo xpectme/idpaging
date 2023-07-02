@@ -2,11 +2,12 @@ export interface IDBPagingCalculatePageNumberOptions {
     noCheck?: boolean;
     circularPaging?: boolean;
 }
+declare const PAGE_NUMBER: unique symbol;
 export declare class IDBPaging<T> {
-    #private;
     db: IDBDatabase;
     storeName: string;
     pageSize: number;
+    [PAGE_NUMBER]: number | null;
     get pageNumber(): number;
     totalPages: number;
     list: T[];
@@ -21,3 +22,4 @@ export declare class IDBPaging<T> {
     last(): Promise<T[]>;
     count(): Promise<number>;
 }
+export {};
