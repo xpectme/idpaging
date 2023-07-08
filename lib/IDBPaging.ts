@@ -1,6 +1,15 @@
 import * as idbx from "npm:idbx";
 
-export interface IDBPagingCalculatePageNumberOptions {
+export interface IDBPagingIndexOptions {
+  indexName?: string;
+  indexKey?: IDBValidKey;
+}
+
+export interface IDBPagingPageSizeOptions extends IDBPagingIndexOptions {
+  startPage?: number;
+}
+
+export interface IDBPagingCommandOptions extends IDBPagingIndexOptions {
   noCheck?: boolean;
   circularPaging?: boolean;
 }
@@ -30,23 +39,32 @@ export class IDBPaging<T> {
     this.list = [];
   }
 
-  async setPageSize(pageSize: number, startPageNumber = 1) {
+  async setPageSize(
+    pageSize: number,
+    options: number | IDBPagingPageSizeOptions = 1,
+  ) {
     if (pageSize < 1) {
       throw new Error("pageSize must be greater than 0");
     }
+
+    const startPageNumber = typeof options === "number"
+      ? options
+      : options.startPage ?? 1;
+    options = typeof options === "number" ? {} : options;
+
     this.pageSize = pageSize;
-    await this.go(startPageNumber);
+    await this.go(startPageNumber, options);
   }
 
-  async calculateLastPageNumber() {
-    const count = await this.count();
+  async calculateLastPageNumber(options?: IDBPagingIndexOptions) {
+    const count = await this.count(options);
     this.totalPages = Math.ceil(count / this.pageSize);
     return this.totalPages;
   }
 
   async calculatePageNumber(
     pageNumber: number | string,
-    options: IDBPagingCalculatePageNumberOptions = {},
+    options: IDBPagingCommandOptions = {},
   ): Promise<void> {
     const noCheck = options.noCheck === undefined ? false : options.noCheck;
     const circularPaging = options.circularPaging === undefined
@@ -55,7 +73,7 @@ export class IDBPaging<T> {
 
     this[PAGE_NUMBER] = parseInt(pageNumber.toString(), 10) ?? this.pageNumber;
     if (!noCheck || circularPaging) {
-      const lastPageNumber = await this.calculateLastPageNumber();
+      const lastPageNumber = await this.calculateLastPageNumber(options);
       if (this.pageNumber < 1) {
         if (circularPaging) {
           const flipPages = Math.abs(this.pageNumber) % lastPageNumber;
@@ -76,7 +94,7 @@ export class IDBPaging<T> {
     }
   }
 
-  async go(pageNumber: number, options: IDBPagingCalculatePageNumberOptions = {
+  async go(pageNumber: number, options: IDBPagingCommandOptions = {
     noCheck: false,
     circularPaging: false,
   }): Promise<T[]> {
@@ -86,14 +104,25 @@ export class IDBPaging<T> {
 
     this.list = await new Promise((resolve) => {
       const list: T[] = [];
-      const store = idbx.getStore(this.db, this.storeName);
-      idbx.cursorHandler(store, (cursor) => {
+
+      let store: IDBObjectStore | IDBIndex = idbx.getStore(
+        this.db,
+        this.storeName,
+      );
+      const index = options?.indexName !== undefined
+        ? store.index(options.indexName)
+        : null;
+
+      store = index !== null ? index : store;
+      idbx.cursorHandler(store as any, (cursor) => {
         if (advancing && offset > 0) {
           advancing = false;
           cursor.advance(offset);
         } else {
           if (this.pageSize >= list.length) {
-            list.push(cursor.value);
+            if (!options?.indexKey || cursor.key === options?.indexKey) {
+              list.push(cursor.value);
+            }
           }
           if (this.pageSize === list.length) {
             // early exit
@@ -108,33 +137,53 @@ export class IDBPaging<T> {
     return this.list;
   }
 
-  next(pages = 1, circularPaging = false) {
+  next(
+    pages = 1,
+    options: boolean | IDBPagingCommandOptions = false,
+  ) {
+    if (typeof options === "boolean") {
+      options = { circularPaging: options };
+    }
     const pageNumber = this.pageNumber + Math.abs(pages);
-    return this.go(pageNumber, { circularPaging });
+    return this.go(pageNumber, options);
   }
 
-  prev(pages = 1, circularPaging = false) {
+  prev(
+    pages = 1,
+    options: boolean | IDBPagingCommandOptions = false,
+  ) {
+    if (typeof options === "boolean") {
+      options = { circularPaging: options };
+    }
     const pageNumber = this.pageNumber - Math.abs(pages);
-    return this.go(pageNumber, { circularPaging });
+    return this.go(pageNumber, options);
   }
 
-  first() {
-    return this.go(1);
+  first(options?: IDBPagingIndexOptions) {
+    return this.go(1, options);
   }
 
-  async last() {
+  async last(
+    options?: IDBPagingIndexOptions,
+  ) {
     const lastPageNumber = this.totalPages === 0
-      ? await this.calculateLastPageNumber()
+      ? await this.calculateLastPageNumber(options)
       : this.totalPages;
 
     // noCheck is true because we already know the last page number
-    return this.go(lastPageNumber, { noCheck: true });
+    return this.go(lastPageNumber, { ...options, noCheck: true });
   }
 
-  count() {
-    const transaction = this.db.transaction([this.storeName], "readonly");
-    const objectStore = transaction.objectStore(this.storeName);
-    const req = objectStore.count();
+  count(options?: IDBPagingIndexOptions) {
+    let store: IDBObjectStore | IDBIndex = idbx.getStore(
+      this.db,
+      this.storeName,
+    );
+    const index = options?.indexName !== undefined
+      ? store.index(options.indexName)
+      : null;
+    store = index !== null ? index : store;
+    const req = store.count(options?.indexKey);
     return new Promise<number>((resolve, reject) => {
       req.onsuccess = () => {
         resolve(req.result);

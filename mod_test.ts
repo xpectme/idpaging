@@ -18,6 +18,11 @@ function createDB() {
     version: 1,
     upgrade(db) {
       db.createObjectStore("test", { keyPath: "id", autoIncrement: true });
+      const store = db.createObjectStore("test2", {
+        keyPath: "id",
+        autoIncrement: true,
+      });
+      store.createIndex("name", "name", { unique: false });
     },
   });
 }
@@ -33,6 +38,13 @@ function fillDB(db: IDBDatabase, count: number) {
   const store = idbx.getStore(db, "test", "readwrite");
   for (let i = 0; i < count; i++) {
     store.add({ name: `name${i}` });
+  }
+
+  const store2 = idbx.getStore(db, "test2", "readwrite");
+  for (let i = 0; i < count; i++) {
+    for (let j = 0; j < 2; j++) {
+      store2.add({ name: `name${j}` });
+    }
   }
 }
 
@@ -411,4 +423,38 @@ Deno.test("IDBPaging.last()", async () => {
   assertEquals(paging.list[9].name, "name49");
 
   clearDB(db);
+});
+
+Deno.test("IDBPaging.count() with index", async () => {
+  const db = await createDB();
+  fillDB(db, 10);
+
+  const paging = new IDBPaging<TestStore>(db, "test2");
+  const count = await paging.count({ indexName: "name", indexKey: "name0" });
+  assertEquals(count, 10);
+
+  clearDB(db);
+});
+
+Deno.test("IDBPaging.go() with index", async () => {
+  const db = await createDB();
+  fillDB(db, 20);
+
+  const paging = new IDBPaging<TestStore>(db, "test2");
+
+  await paging.setPageSize(10, { indexName: "name", indexKey: "name0" });
+  assertEquals(paging.pageNumber, 1);
+  assertEquals(paging.pageSize, 10);
+  assertEquals(paging.totalPages, 2);
+  assertEquals(paging.list.length, 10);
+  assertEquals(paging.list[0].name, "name0");
+  assertEquals(paging.list[9].name, "name0");
+
+  await paging.go(2, { indexName: "name", indexKey: "name0" });
+  assertEquals(paging.pageNumber, 2);
+  assertEquals(paging.pageSize, 10);
+  assertEquals(paging.totalPages, 2);
+  assertEquals(paging.list.length, 10);
+  assertEquals(paging.list[0].name, "name0");
+  assertEquals(paging.list[9].name, "name0");
 });
