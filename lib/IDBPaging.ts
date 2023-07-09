@@ -1,12 +1,14 @@
 import * as idbx from "npm:idbx";
 
 export interface IDBPagingIndexOptions {
-  indexName?: string;
-  indexKey?: IDBValidKey;
+  index?: string;
+  query?: IDBValidKey | IDBKeyRange;
+  direction?: IDBCursorDirection;
 }
 
 export interface IDBPagingPageSizeOptions extends IDBPagingIndexOptions {
   startPage?: number;
+  pageSize?: number;
 }
 
 export interface IDBPagingCommandOptions extends IDBPagingIndexOptions {
@@ -19,6 +21,9 @@ const PAGE_NUMBER = Symbol("pageNumber");
 export class IDBPaging<T> {
   db: IDBDatabase;
   storeName: string;
+  indexName?: string;
+  query?: IDBValidKey | IDBKeyRange;
+  direction?: IDBCursorDirection;
   pageSize: number;
   [PAGE_NUMBER]: number | null = null;
   get pageNumber() {
@@ -30,11 +35,19 @@ export class IDBPaging<T> {
   constructor(
     db: IDBDatabase,
     storeName: string,
-    pageSize = 10,
+    options: number | IDBPagingPageSizeOptions = 10,
   ) {
     this.db = db;
     this.storeName = storeName;
-    this.pageSize = pageSize ?? 10;
+    if (typeof options === "number") {
+      this.pageSize = options;
+    } else {
+      this.pageSize = options.pageSize ?? 10;
+      this[PAGE_NUMBER] = options.startPage ?? 1;
+      this.indexName = options.index;
+      this.query = options.query;
+      this.direction = options.direction;
+    }
     this.totalPages = 0;
     this.list = [];
   }
@@ -102,25 +115,25 @@ export class IDBPaging<T> {
     const offset = (this.pageNumber - 1) * this.pageSize;
     let advancing = true;
 
+    const index = options.index ?? this.indexName;
+    const query = options.query ?? this.query;
+    const direction = options.direction ?? this.direction;
+
     this.list = await new Promise((resolve) => {
       const list: T[] = [];
 
-      let store: IDBObjectStore | IDBIndex = idbx.getStore(
-        this.db,
-        this.storeName,
-      );
-      const index = options?.indexName !== undefined
-        ? store.index(options.indexName)
-        : null;
+      const store = index !== undefined
+        ? idbx.getIndex(this.db, this.storeName, index)
+        : idbx.getStore(this.db, this.storeName);
 
-      store = index !== null ? index : store;
-      idbx.cursorHandler(store as any, (cursor) => {
+      const request = store.openCursor(query, direction);
+      idbx.cursorHandler(request, (cursor) => {
         if (advancing && offset > 0) {
           advancing = false;
           cursor.advance(offset);
         } else {
           if (this.pageSize >= list.length) {
-            if (!options?.indexKey || cursor.key === options?.indexKey) {
+            if (!options?.query || cursor.key === options?.query) {
               list.push(cursor.value);
             }
           }
@@ -175,15 +188,14 @@ export class IDBPaging<T> {
   }
 
   count(options?: IDBPagingIndexOptions) {
-    let store: IDBObjectStore | IDBIndex = idbx.getStore(
-      this.db,
-      this.storeName,
-    );
-    const index = options?.indexName !== undefined
-      ? store.index(options.indexName)
-      : null;
-    store = index !== null ? index : store;
-    const req = store.count(options?.indexKey);
+    const index = options?.index ?? this.indexName;
+    const query = options?.query ?? this.query;
+
+    const store = index !== undefined
+      ? idbx.getIndex(this.db, this.storeName, index)
+      : idbx.getStore(this.db, this.storeName);
+
+    const req = store.count(query);
     return new Promise<number>((resolve, reject) => {
       req.onsuccess = () => {
         resolve(req.result);

@@ -20,7 +20,6 @@
     "https://deno.land/std@0.192.0/testing/_diff.ts": "1a3c044aedf77647d6cac86b798c6417603361b66b54c53331b312caeb447aea",
     "https://deno.land/std@0.192.0/testing/_format.ts": "a69126e8a469009adf4cf2a50af889aca364c349797e63174884a52ff75cf4c7",
     "https://deno.land/std@0.192.0/testing/asserts.ts": "e16d98b4d73ffc4ed498d717307a12500ae4f2cbe668f1a215632d19fcffc22f",
-    "https://deno.land/std@0.192.0/testing/mock.ts": "220ed9b8151cb2cac141043d4cfea7c47673fab5d18d1c1f0943297c8afb5d13",
     "https://deno.land/x/indexeddb@1.3.5/lib/indexeddb.ts": "6d8eeec0c4074ed2e3ed5ae3c99e3b66703f772c791279d052680fe3b334de2d",
     "https://deno.land/x/indexeddb@1.3.5/lib/indexeddb_global.ts": "7bec428dcf95b36a61b8acec5b5c943fb33a86815bff57458ada59e1642dfbe3",
     "https://deno.land/x/indexeddb@1.3.5/lib/shim.ts": "8b98a9395134220ac9dfe7314c3e27f37feffec0cab37dbf557f06f118b6eaad",
@@ -40,23 +39,15 @@
     "https://deno.land/x/websql@1.3.2/src/SQLResultSet.ts": "fcd83582439c0032794fa26bbbe9e47790467fa5ef1cba1c8a9fddb334f23bf1",
     "https://deno.land/x/websql@1.3.2/src/SQLResultSetRowList.ts": "d13bda459cc73bc7e4d596a0411f1e4647d1204a8fddfd42a51720a20d4bf562",
     "https://deno.land/x/websql@1.3.2/src/SQLTransaction.ts": "bda17665d54793976957af94a300834e5f07ee546d67e919f14da2a7f77fc797",
-    "https://deno.land/x/websql@1.3.2/src/SQLiteDBCache.ts": "0c5a67598e39e54c317b40fff3ffc9945e5a9ed0b0c91b5d8a2b379d59c4f4a4",
-    "https://esm.sh/idbx@v2.0.0": "559994e907814256c7ff70c85c31578b9631a0a2213ec46c854d5654781363e8",
-    "https://esm.sh/v127/idbx@2.0.0/deno/idbx.mjs": "4876a06576c9fedee056f5f9999842d7397a60609806c156cd8e7e952fc1c4ac",
-    "https://esm.sh/v127/idbx@2.0.0/dest/idbx.d.ts": "0ec31f6a9b85b13ee3943f98add63b6a8b06d5c182c5fb0334d54badb0dc54b2",
-    "https://gist.githubusercontent.com/mstoecklein/6f0787c663101f78367586d675dd2088/raw/10a09385b0b7f04cc93c2be79f716dc72a1e7b91/serviceworker.d.ts": "7a88acfc3b1df6abc6b3ef59f7f397f7ef80bba649daca8920b944d0c0aa9abf"
+    "https://deno.land/x/websql@1.3.2/src/SQLiteDBCache.ts": "0c5a67598e39e54c317b40fff3ffc9945e5a9ed0b0c91b5d8a2b379d59c4f4a4"
   },
   "npm": {
     "specifiers": {
-      "idbx": "idbx@2.0.0"
+      "idbx": "idbx@2.1.0"
     },
     "packages": {
-      "idbx@1.1.0": {
-        "integrity": "sha512-O/GZzkClE9XmmDkontg0u+sfzOPSsWYrwterRBZrIXquH8+/4bcpYzBcB1/ckHEDAQudH3elUduQJ6/jxOLH2g==",
-        "dependencies": {}
-      },
-      "idbx@2.0.0": {
-        "integrity": "sha512-snCyjz5w+j4LvXYxfe/ktD5tltF0ULBgyGCkxNNpQYpBI3tCz3Nz/xdHuEzKepKN3RRNQv2xZaCO6MKs2tQU5g==",
+      "idbx@2.1.0": {
+        "integrity": "sha512-inK2RkxKJnHzL73aiWOlUnnJCXunt+dmA3h0TfPLIAiAGIb5FM7T2PS2JkP6KvASc0HdonTS0ltYv/ysaTQ/jA==",
         "dependencies": {}
       }
     }

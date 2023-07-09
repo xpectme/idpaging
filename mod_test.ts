@@ -4,7 +4,7 @@ import {
   assertRejects,
 } from "https://deno.land/std@0.192.0/testing/asserts.ts";
 
-import * as idbx from "https://esm.sh/idbx@v2.0.0";
+import * as idbx from "npm:idbx";
 
 import { IDBPaging } from "./mod.ts";
 
@@ -13,44 +13,79 @@ interface TestStore {
   name: string;
 }
 
+const dbgen = {
+  count: 0,
+  name: "testdb",
+  get nextName() {
+    this.name = `testdb${this.count++}`;
+    return this.name;
+  },
+};
+
+class DbHandler {
+  static count = 0;
+  static get nextName() {
+    return `testdb${this.count++}`;
+  }
+  static map = new Map<IDBDatabase, DbHandler>();
+
+  db: IDBDatabase;
+  async createDB() {
+    const db = await idbx.openDB(DbHandler.nextName, {
+      version: 1,
+      upgrade(db) {
+        db.createObjectStore("test", { keyPath: "id", autoIncrement: true });
+        const store = db.createObjectStore("test2", {
+          keyPath: "id",
+          autoIncrement: true,
+        });
+        store.createIndex("name", "name", { unique: false });
+      },
+    });
+    DbHandler.map.set(db, this);
+    this.db = db;
+    return db;
+  }
+
+  clearDB() {
+    DbHandler.map.delete(this.db);
+    const name = this.db.name;
+    // close database
+    this.db.close();
+    // delete database
+    indexedDB.deleteDatabase(name);
+  }
+}
+
 function createDB() {
-  return idbx.openDB("test", {
-    version: 1,
-    upgrade(db) {
-      db.createObjectStore("test", { keyPath: "id", autoIncrement: true });
-      const store = db.createObjectStore("test2", {
-        keyPath: "id",
-        autoIncrement: true,
-      });
-      store.createIndex("name", "name", { unique: false });
-    },
-  });
+  return new DbHandler().createDB();
 }
 
 function clearDB(db: IDBDatabase) {
-  // close database
-  db.close();
-  // delete database
-  indexedDB.deleteDatabase("testdb");
+  DbHandler.map.get(db)?.clearDB();
 }
 
-function fillDB(db: IDBDatabase, count: number) {
-  const store = idbx.getStore(db, "test", "readwrite");
+async function fillDB(db: IDBDatabase, count: number) {
+  const items = [];
   for (let i = 0; i < count; i++) {
-    store.add({ name: `name${i}` });
+    items.push({ name: `name${i}` });
   }
+  const store = idbx.getStore(db, "test", "readwrite");
+  await idbx.add(store, items);
 
-  const store2 = idbx.getStore(db, "test2", "readwrite");
+  const items2 = [];
   for (let i = 0; i < count; i++) {
     for (let j = 0; j < 2; j++) {
-      store2.add({ name: `name${j}` });
+      items2.push({ name: `name${j}` });
     }
   }
+  const store2 = idbx.getStore(db, "test2", "readwrite");
+  await idbx.add(store2, items2);
 }
 
 Deno.test("IDBPaging.constructor(db, storeName, options)", async () => {
   const db = await createDB();
-  fillDB(db, 10);
+  await fillDB(db, 10);
 
   const paging = new IDBPaging<TestStore>(db, "test");
   assertEquals(paging.pageNumber, 1);
@@ -63,7 +98,7 @@ Deno.test("IDBPaging.constructor(db, storeName, options)", async () => {
 
 Deno.test("IDBPaging.setPageSize(pageSize)", async () => {
   const db = await createDB();
-  fillDB(db, 10);
+  await fillDB(db, 10);
 
   const paging = new IDBPaging<TestStore>(db, "test");
   assertEquals(paging.pageNumber, 1);
@@ -94,7 +129,7 @@ Deno.test("IDBPaging.setPageSize(pageSize)", async () => {
 
 Deno.test("IDBPaging.calculatePageNumber(pageNumber)", async () => {
   const db = await createDB();
-  fillDB(db, 10);
+  await fillDB(db, 10);
 
   const paging = new IDBPaging<TestStore>(db, "test", 5);
 
@@ -131,7 +166,7 @@ Deno.test("IDBPaging.calculatePageNumber(pageNumber)", async () => {
 
 Deno.test("IDBPaging.calculatePageNumber(pageNumber, {circularPaging:true})", async () => {
   const db = await createDB();
-  fillDB(db, 10);
+  await fillDB(db, 10);
 
   const paging = new IDBPaging<TestStore>(db, "test", 5);
 
@@ -164,7 +199,7 @@ Deno.test("IDBPaging.calculatePageNumber(pageNumber, {circularPaging:true})", as
 
 Deno.test("IDBPaging.calculatePageNumber(pageNumber, {noCheck:true})", async () => {
   const db = await createDB();
-  fillDB(db, 10);
+  await fillDB(db, 10);
 
   const paging = new IDBPaging<TestStore>(db, "test", 5);
 
@@ -197,7 +232,7 @@ Deno.test("IDBPaging.calculatePageNumber(pageNumber, {noCheck:true})", async () 
 
 Deno.test("IDBPaging.calculateLastPageNumber()", async () => {
   const db = await createDB();
-  fillDB(db, 10);
+  await fillDB(db, 10);
 
   const paging = new IDBPaging<TestStore>(db, "test", 5);
   assertEquals(paging.totalPages, 0, "totalPages is not known at this point");
@@ -210,7 +245,7 @@ Deno.test("IDBPaging.calculateLastPageNumber()", async () => {
 
 Deno.test("IDBPaging.go(pageNumber)", async () => {
   const db = await createDB();
-  fillDB(db, 10);
+  await fillDB(db, 10);
 
   const paging = new IDBPaging<TestStore>(db, "test");
 
@@ -241,7 +276,7 @@ Deno.test("IDBPaging.go(pageNumber)", async () => {
 
 Deno.test("IDBPaging.next()", async () => {
   const db = await createDB();
-  fillDB(db, 20);
+  await fillDB(db, 20);
 
   const paging = new IDBPaging<TestStore>(db, "test");
 
@@ -275,7 +310,7 @@ Deno.test("IDBPaging.next()", async () => {
 
 Deno.test("IDBPaging.next(x)", async () => {
   const db = await createDB();
-  fillDB(db, 50);
+  await fillDB(db, 50);
 
   const paging = new IDBPaging<TestStore>(db, "test");
 
@@ -309,7 +344,7 @@ Deno.test("IDBPaging.next(x)", async () => {
 
 Deno.test("IDBPaging.prev()", async () => {
   const db = await createDB();
-  fillDB(db, 20);
+  await fillDB(db, 20);
 
   const paging = new IDBPaging<TestStore>(db, "test");
 
@@ -343,7 +378,7 @@ Deno.test("IDBPaging.prev()", async () => {
 
 Deno.test("IDBPaging.prev(x)", async () => {
   const db = await createDB();
-  fillDB(db, 50);
+  await fillDB(db, 50);
 
   const paging = new IDBPaging<TestStore>(db, "test");
 
@@ -377,7 +412,7 @@ Deno.test("IDBPaging.prev(x)", async () => {
 
 Deno.test("IDBPaging.first()", async () => {
   const db = await createDB();
-  fillDB(db, 50);
+  await fillDB(db, 50);
 
   const paging = new IDBPaging<TestStore>(db, "test");
 
@@ -402,7 +437,7 @@ Deno.test("IDBPaging.first()", async () => {
 
 Deno.test("IDBPaging.last()", async () => {
   const db = await createDB();
-  fillDB(db, 50);
+  await fillDB(db, 50);
 
   const paging = new IDBPaging<TestStore>(db, "test");
 
@@ -427,10 +462,10 @@ Deno.test("IDBPaging.last()", async () => {
 
 Deno.test("IDBPaging.count() with index", async () => {
   const db = await createDB();
-  fillDB(db, 10);
+  await fillDB(db, 10);
 
   const paging = new IDBPaging<TestStore>(db, "test2");
-  const count = await paging.count({ indexName: "name", indexKey: "name0" });
+  const count = await paging.count({ index: "name", query: "name0" });
   assertEquals(count, 10);
 
   clearDB(db);
@@ -438,11 +473,11 @@ Deno.test("IDBPaging.count() with index", async () => {
 
 Deno.test("IDBPaging.go() with index", async () => {
   const db = await createDB();
-  fillDB(db, 20);
+  await fillDB(db, 20);
 
   const paging = new IDBPaging<TestStore>(db, "test2");
 
-  await paging.setPageSize(10, { indexName: "name", indexKey: "name0" });
+  await paging.setPageSize(10, { index: "name", query: "name0" });
   assertEquals(paging.pageNumber, 1);
   assertEquals(paging.pageSize, 10);
   assertEquals(paging.totalPages, 2);
@@ -450,7 +485,7 @@ Deno.test("IDBPaging.go() with index", async () => {
   assertEquals(paging.list[0].name, "name0");
   assertEquals(paging.list[9].name, "name0");
 
-  await paging.go(2, { indexName: "name", indexKey: "name0" });
+  await paging.go(2, { index: "name", query: "name0" });
   assertEquals(paging.pageNumber, 2);
   assertEquals(paging.pageSize, 10);
   assertEquals(paging.totalPages, 2);
