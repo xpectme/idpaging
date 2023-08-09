@@ -133,12 +133,7 @@ export class IDBPaging<T> {
           cursor.advance(offset);
         } else {
           if (this.pageSize >= list.length) {
-            if (
-              !options?.query ||
-              JSON.stringify(cursor.key) === JSON.stringify(options.query)
-            ) {
-              list.push(cursor.value);
-            }
+            list.push(cursor.value);
           }
           if (this.pageSize === list.length) {
             // early exit
