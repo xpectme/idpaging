@@ -133,7 +133,10 @@ export class IDBPaging<T> {
           cursor.advance(offset);
         } else {
           if (this.pageSize >= list.length) {
-            if (!options?.query || cursor.key === options?.query) {
+            if (
+              !options?.query ||
+              JSON.stringify(cursor.key) === JSON.stringify(options.query)
+            ) {
               list.push(cursor.value);
             }
           }

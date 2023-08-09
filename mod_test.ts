@@ -1,6 +1,7 @@
 import "https://deno.land/x/indexeddb@1.3.5/polyfill_memory.ts";
 import {
   assertEquals,
+  assertNotEquals,
   assertRejects,
 } from "https://deno.land/std@0.192.0/testing/asserts.ts";
 
@@ -13,14 +14,10 @@ interface TestStore {
   name: string;
 }
 
-const dbgen = {
-  count: 0,
-  name: "testdb",
-  get nextName() {
-    this.name = `testdb${this.count++}`;
-    return this.name;
-  },
-};
+interface TestStore3 extends TestStore {
+  type: string;
+  ref: string;
+}
 
 class DbHandler {
   static count = 0;
@@ -30,16 +27,22 @@ class DbHandler {
   static map = new Map<IDBDatabase, DbHandler>();
 
   db: IDBDatabase;
-  async createDB() {
+  async createDB(fn = null) {
     const db = await idbx.openDB(DbHandler.nextName, {
       version: 1,
-      upgrade(db) {
-        db.createObjectStore("test", { keyPath: "id", autoIncrement: true });
-        const store = db.createObjectStore("test2", {
+      upgrade(db = null) {
+        const store1 = db.createObjectStore("test", {
           keyPath: "id",
           autoIncrement: true,
         });
-        store.createIndex("name", "name", { unique: false });
+        const store2 = db.createObjectStore("test2", {
+          keyPath: "id",
+          autoIncrement: true,
+        });
+        store2.createIndex("name", "name", { unique: false });
+        if (fn) {
+          fn(db, store1, store2);
+        }
       },
     });
     DbHandler.map.set(db, this);
@@ -57,8 +60,8 @@ class DbHandler {
   }
 }
 
-function createDB() {
-  return new DbHandler().createDB();
+function createDB(fn = null) {
+  return new DbHandler().createDB(fn);
 }
 
 function clearDB(db: IDBDatabase) {
@@ -81,6 +84,15 @@ async function fillDB(db: IDBDatabase, count: number) {
   }
   const store2 = idbx.getStore(db, "test2", "readwrite");
   await idbx.add(store2, items2);
+}
+
+async function fillDB2(db: IDBDatabase, count: number) {
+  const items = [];
+  for (let i = 0; i < count; i++) {
+    items.push({ name: `name${i}`, type: `type${i % 2}`, ref: "ref" });
+  }
+  const store = idbx.getStore(db, "test", "readwrite");
+  await idbx.add(store, items);
 }
 
 Deno.test("IDBPaging.constructor(db, storeName, options)", async () => {
@@ -492,4 +504,36 @@ Deno.test("IDBPaging.go() with index", async () => {
   assertEquals(paging.list.length, 10);
   assertEquals(paging.list[0].name, "name0");
   assertEquals(paging.list[9].name, "name0");
+});
+
+Deno.test("IDBPaging.go() with index [type, ref]", async () => {
+  const db = await createDB((db, store) => {
+    store.createIndex("type_ref_idx", ["type", "ref"]);
+  });
+  await fillDB2(db, 10);
+
+  const paging = new IDBPaging<TestStore3>(db, "test", { pageSize: 10 });
+
+  await paging.go(1, { index: "type_ref_idx", query: ["type0", "ref"] });
+  assertEquals(paging.pageNumber, 1);
+  assertEquals(paging.pageSize, 10);
+  assertEquals(paging.totalPages, 1);
+  assertEquals(paging.list.length, 5);
+  assertEquals(
+    paging.list.filter((v) => v.type === "type0" && v.ref === "ref").length,
+    5,
+  );
+
+  await paging.go(1, {
+    index: "type_ref_idx",
+    query: ["type1", "ref"],
+  });
+  assertEquals(paging.pageNumber, 1);
+  assertEquals(paging.pageSize, 10);
+  assertEquals(paging.totalPages, 1);
+  assertEquals(paging.list.length, 5);
+  assertEquals(
+    paging.list.filter((v) => v.type === "type1" && v.ref === "ref").length,
+    5,
+  );
 });
